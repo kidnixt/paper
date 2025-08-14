@@ -1,21 +1,7 @@
 \documentclass{article}
 
 
-
-\usepackage{arxiv}
-
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
-\usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
-\usepackage{lipsum}		% Can be removed after putting your text content
-\usepackage{graphicx}
-\usepackage{natbib}
-\usepackage{doi}
+\input{config.tex}
 
 
 
@@ -53,7 +39,7 @@
 % Uncomment to override  the `A preprint' in the header
 %\renewcommand{\headeright}{Technical Report}
 %\renewcommand{\undertitle}{Technical Report}
-\renewcommand{\shorttitle}{\textit{arXiv} Template}
+\renewcommand{\shorttitle}{\textit{CAMBIAR} CAMBIAR}
 
 %%% Add PDF metadata to help others organize their library
 %%% Once the PDF is generated, you can check the metadata with
@@ -81,10 +67,209 @@ pdfkeywords={First keyword, Second keyword, More},
 
 
 \section{Introduction}
-The pervasive integration of artificial intelligence (AI) agents into diverse modern systems has heralded a new era of capabilities in perception, reasoning, and adaptive behavior. LLMs, in particular, stand at the forefront of this evolution, demonstrating unprecedented abilities in natural language generation, comprehension, and complex problem-solving. Their widespread adoption across various domains, from content creation to decision support, underscores their transformative potential and increasing influence on societal and industrial landscapes.
 
-Despite their remarkable advancements, the deployment of LLMs introduces significant challenges and concerns. These models often exhibit behaviors that can be unpredictable, including the generation of biased, unethical, or factually incorrect content. Issues such as data memorization, inherent biases stemming from training data, and a lack of transparency or interpretability pose substantial risks, raising critical questions about their reliability and trustworthiness in sensitive applications. The absence of robust, standardized evaluation frameworks further complicates systematic risk assessment and mitigation across different LLM implementations.
+The pervasive integration of artificial intelligence (AI) agents into diverse modern systems has heralded a new era of capabilities in perception, reasoning, and adaptive behavior. Large Language Models (LLMs), in particular, stand at the forefront of this evolution, demonstrating unprecedented abilities in natural language generation, comprehension, and complex problem-solving. Their widespread adoption across various domains, from content creation to decision support, underscores their transformative potential and increasing influence on societal and industrial landscapes \cite{chen2022runtime, russell2016artificial}.
 
+Despite their remarkable advancements, the deployment of LLMs introduces significant challenges and concerns. These models often exhibit behaviors that can be unpredictable, including the generation of biased, unethical, or factually incorrect content. Issues such as data memorization, inherent biases stemming from training data, and a lack of transparency or interpretability pose substantial risks, raising critical questions about their reliability and trustworthiness in sensitive applications \cite{ai_index_2024, aiaaic_repository, ai_index_chapter3}. The absence of robust, standardized evaluation frameworks further complicates systematic risk assessment and mitigation across different LLM implementations.
+
+Addressing these critical concerns, the subfield of Verified AI has emerged, seeking to develop systems with mathematically defined guarantees of correctness. Verified AI employs logic-based mathematical frameworks to specify and rigorously verify properties of system behavior \cite{wing2021trustworthy, seshia2022toward}. This work specifically focuses on the verification of Large Language Models (LLMs), which present unique challenges due to their complex, stochastic behaviors and intrinsic limitations like data memorization and the reproduction of copyrighted or harmful material \cite{kuchnik2023validating}.
+
+The AI research group at Universidad ORT Uruguay specializes in extracting verifiable formal "surrogate" models from language models using automata to formalize and verify behavioral properties \cite{mayr2018regular, mayr2020fly, mayr2021property, mayr2022towards, mayr2023congruence}. A key achievement in this area is the NeuralChecker tool, which demonstrated its effectiveness in inferring models based on neural networks in the TAYSIR 2023 competition \cite{neural_checker, taysir2023, mayr2023results}. Furthermore, recent work by the team introduced an innovative approach to guide text generation in language models through synchronization with probabilistic deterministic finite automata (PDFA), proving effective for analyzing biases and accurately approximating generated distributions under specific properties \cite{carrasco2024analyzing}.
+
+\subsection{Formal Verification Background}
+
+Formal methods provide a rigorous, mathematically grounded approach to specifying, developing, and verifying software and hardware systems. Among these, \textbf{Model Checking} is a powerful technique that systematically determines whether a system model adheres to a given specification, typically expressed in temporal logics. Unlike empirical testing, Model Checking offers an exhaustive analysis of a system's state space to automatically verify properties such as deadlock freedom, safety, and invariants \cite{clarke2009model, baier2008principles}. Given the inherent stochastic nature of Large Language Models, probabilistic extensions of formal methods are particularly relevant for their rigorous verification.
+
+\begin{figure}[h!]
+    \centering
+    \begin{tikzpicture}[
+        every node/.style={draw, text centered, rounded corners, minimum height=0.8cm, minimum width=2.2cm, font=\small},
+        start stop/.style={ellipse, draw, text centered},
+        process/.style={rectangle, draw, text centered},
+        arrow/.style={-{Stealth}, line width=0.7pt},
+        node distance=0.5cm and 0.5cm  % Reducido de 0.7cm a 0.5cm
+    ]
+
+    % Nodes
+    \node[start stop] (requirements) {requirements};
+    \node[process, below=of requirements] (formalizing) {Formalizing};
+    \node[start stop, right=2.5cm of requirements] (system) {system};  % Reducido de 3cm a 2.5cm
+    \node[process, below=of system] (modeling) {Modeling};
+    \node[start stop, below=of formalizing] (propertyspec) {property specification};
+    \node[start stop, below=of modeling] (systemmodel) {system model};
+    \node[process, below=of systemmodel, xshift=-2.5cm] (modelchecking) {Model Checking};  % Reducido de 3cm a 2.5cm
+    \node[start stop, below left=of modelchecking, xshift=-0.3cm] (satisfied) {satisfied};  % Ajuste fino
+    \node[start stop, below right=of modelchecking, xshift=0.3cm] (violated) {violated + counterexample};  % Ajuste fino
+    \node[process, right=0.8cm of violated, yshift=1.5cm] (simulation) {Simulation};  % Reducido right y yshift
+    \node[start stop, below=of simulation] (error) {location error};
+
+    % Arrows (sin cambios, pero se ajustan automáticamente)
+    \draw[arrow] (requirements) -- (formalizing);
+    \draw[arrow] (formalizing) -- (propertyspec);
+    \draw[arrow] (system) -- (modeling);
+    \draw[arrow] (modeling) -- (systemmodel);
+    \draw[arrow] (propertyspec) |- (modelchecking);
+    \draw[arrow] (systemmodel) |- (modelchecking);
+    \draw[arrow] (modelchecking) -- (satisfied);
+    \draw[arrow] (modelchecking) -- (violated);
+    \draw[arrow] (violated) -- (simulation);
+    \draw[arrow] (simulation) -- (error);
+    \draw[arrow] (systemmodel.east) -- ++(0.4,0) |- (simulation);  % Flecha más corta
+
+    \end{tikzpicture}
+    \caption{Schematic view of the traditional model-checking approach.}
+    \label{fig:model_checking}
+\end{figure}
+
+In the context of probabilistic systems, \textbf{Discrete-Time Markov Chains (DTMCs)} serve as a fundamental mathematical formalism. A DTMC is defined as a tuple $(S, s_0, P)$, where $S$ is a finite set of states, $s_0 \in S$ is the initial state, and $P: S \times S \to [0,1]$ is the transition probability function, such that $\sum_{s' \in S} P(s, s') = 1$ for all $s \in S$. DTMCs are well-suited for modeling the sequential and probabilistic token generation process characteristic of LLMs.
+
+To abstract the probabilistic behavior of LLMs, \textbf{Probabilistic Deterministic Finite Automata (PDFAs)} offer a compact and expressive representation. A PDFA can be formally defined as a tuple $(Q, \Sigma, \delta, P_0, F)$, where $Q$ is a finite set of states, $\Sigma$ is the alphabet, $\delta: Q \times \Sigma \to Q$ is the deterministic transition function, $P_0: Q \to [0,1]$ is a probability distribution over the initial states (often a single initial state with probability 1), and $F \subseteq Q$ is a set of final states. Each transition in a PDFA also has an associated probability distribution over the next symbols.
+
+Properties to be verified over these probabilistic models are often specified using \textbf{Probabilistic Computation Tree Logic (PCTL)}. PCTL is a temporal logic that extends CTL to quantify probabilities, allowing for the expression of quantitative temporal properties, such as the probability of reaching a certain state or the likelihood of an event occurring along a path. For example, a PCTL formula might state $P_{\ge p}[\phi U \psi]$, meaning that the probability of $\phi$ holding until $\psi$ holds is at least $p$. These formalisms collectively enable a rigorous analysis of stochastic system behaviors.
+
+\subsection{Proposed Approach and Contributions}
+
+Building on the foundations of Model Checking and the research group's prior work, this paper proposes an approach for verifying LLMs through formal verification techniques. The methodology involves a systematic workflow for integrating probabilistic model extraction from LLMs with the formalization and rigorous verification of desired properties. The core components of our approach are:
+
+
+\begin{itemize}
+    \item \textbf{Automaton Guiding:} Utilizing a guiding automaton to specify desired LLM behaviors, ensuring generated text adheres to predefined linguistic or ethical criteria.
+    \item \textbf{PDFA Extraction:} Employing an active learning algorithm to extract a PDFA that approximates the LLM's probabilistic behavior under the defined constraints.
+    \item \textbf{DTMC Conversion:} Transforming the extracted PDFA into a Discrete-Time Markov Chain (DTMC) to enable compatibility with probabilistic model checking tools.
+    \item \textbf{Formal Verification with PRISM:} Analyzing the DTMC representation using \textbf{PRISM}, a state-of-the-art probabilistic model checker, to verify whether the system satisfies key temporal properties \cite{KNP11}.
+\end{itemize}
+
+The overall verification pipeline for LLMs, adapting the traditional model checking approach, is depicted in Figure \ref{fig:model_checking_approach_thesis}. This integrated workflow extends existing frameworks to provide formal guarantees by extracting a probabilistic representation of the LLM’s behavior and verifying it through model checking.
+
+\begin{figure}[h!]
+    \centering
+    \begin{tikzpicture}[
+        every node/.style={draw, text centered, rounded corners, minimum height=0.8cm, minimum width=2.2cm, font=\small},
+        start stop/.style={ellipse, draw, text centered},
+        process/.style={rectangle, draw, text centered},
+        arrow/.style={-{Stealth}, line width=0.7pt},
+        node distance=0.7cm and 0.7cm
+    ]
+
+    % Nodes
+    \node[start stop] (requirements) {requirements};
+    \node[process, below=of requirements] (formalizing) {formalizing};
+    \node[start stop, right=3cm of requirements] (system) {LLM};
+    \node[process, below=of system] (modeling) {Neural Checker};
+    
+    % Ajuste: propertyspec y guiding en línea horizontal (sin superposición)
+    \node[start stop, below left=0.7cm and -0.5cm of formalizing] (propertyspec) {\shortstack{temporal \\ logic formula}};
+    \node[start stop, below right=0.7cm and -0.5cm of formalizing] (guiding) {Guide Automaton};
+    
+    \node[start stop, below=of modeling] (systemmodel) {DTMC};
+    \node[process, below=of systemmodel, xshift=-2.5cm] (modelchecking) {Model Checking (PRISM)};
+    
+    % Ajuste: satisfied y violated más cerca (separación reducida)
+    \node[start stop, below left=0.7cm and 0.3cm of modelchecking] (satisfied) {satisfied};
+    \node[start stop, below right=0.7cm and 0.3cm of modelchecking] (violated) {\shortstack{violated \\ + counterexample}};
+    
+    \node[process, right=0.8cm of violated, yshift=1.2cm] (simulation) {Simulation};
+    \node[start stop, below=of simulation] (error) {location error};
+
+    % Arrows (igual que antes)
+    \draw[arrow] (requirements) -- (formalizing);
+    \draw[arrow] (formalizing) -- (propertyspec);
+    \draw[arrow] (system) -- (modeling);
+    \draw[arrow] (modeling) -- (systemmodel);
+    \draw[arrow] (propertyspec) |- (modelchecking);
+    \draw[arrow] (systemmodel) |- (modelchecking);
+    \draw[arrow] (modelchecking) -- (satisfied);
+    \draw[arrow] (modelchecking) -- (violated);
+    \draw[arrow] (violated) -- (simulation);
+    \draw[arrow] (simulation) -- (error);
+    \draw[arrow] (systemmodel.east) -- ++(0.4,0) |- (simulation);
+    \draw[arrow] (formalizing) -- (guiding);
+    \draw[arrow] (guiding.north) -- ++(0,0) |- (modeling);
+
+    \end{tikzpicture}
+    \caption{Adaptation of the model-checking approach for verifying LLMs.}
+    \label{fig:model_checking_approach_thesis}
+\end{figure}
+\paragraph{Contribution}
+
+This paper presents several key contributions to the formal verification of Large Language Models (LLMs) through probabilistic model extraction and verification. Our main contributions include:
+
+\begin{itemize}
+    \item \textbf{Synchronization Framework:} We propose and implement a synchronization mechanism that aligns guiding automata with LLMs, constraining text generation to adhere to predefined structural properties. This component, integrated into the NeuralChecker tool as part of this work, is crucial for controlled model learning.
+    \item \textbf{PDFA to DTMC Conversion:} A novel and robust conversion process from the extracted Probabilistic Deterministic Finite Automata (PDFA) to discrete-time Markov chains (DTMCs) was designed and implemented, enabling the seamless use of probabilistic model checking tools such as PRISM.
+    \item \textbf{Experimental Evaluation:} We conducted a comprehensive experimental study to analyze the efficiency and correctness of the synchronization and extraction process, considering factors such as tokenizer settings, regex complexity, and context length.
+    \item \textbf{Formal Verification Workflow:} By integrating the synchronization framework and the PDFA-to-DTMC conversion, we established a complete workflow for verifying temporal properties over LLMs, rigorously evaluated through various case studies and practical experiments.
+\end{itemize}
+
+The specific architectural integration of these components and the role of the synchronization mechanism within the broader NeuralChecker framework are further illustrated in Figure \ref{fig:neuralchecker}. This figure highlights the key contributions and their interplay.
+
+\begin{figure}[htbp]
+\centering 
+\begin{tikzpicture}
+
+    % Rectángulo grande
+    \draw (0,0) rectangle (10,8);
+
+    % Texto "NeuralChecker" en la esquina inferior izquierda
+    \node[anchor=south west] at (0.25,0.25) {\textbf{NeuralChecker}};
+
+    % Rectángulo pequeño en la esquina superior derecha
+    \draw (6,7.3) rectangle (9,5.7); % Ajusta las coordenadas según el tamaño deseado
+    \node at (7.5,6.5) {\shortstack{Learning \\  Algorithm}}; % Texto centrado en el rectángulo pequeño
+
+    % Rectángulo con línea punteada en la esquina superior izquierda (Synchronizer)
+    \draw[dashed] (1,7.3) rectangle (4,5.7); % Mismas dimensiones que "Learning Algorithm"
+    \node at (2.5,6.5) {Synchronizer}; % Texto centrado
+
+    % Flecha desde "Synchronizer" hasta "Learning Algorithm"
+    \draw[->, thick] (4,6.5) -- (6,6.5); % Flecha horizontal
+
+% Óvalo "LLM" arriba de "Synchronizer" y fuera del rectángulo grande
+    \node[ellipse, draw, minimum width=2.5cm, minimum height=1.5cm] (llm) at (2.5,9.5) {LLM}; % Posición fuera del rectángulo grande
+
+    % Flecha desde el óvalo "LLM" hasta "Synchronizer"
+    \draw[->, thick] (2.5,8.75) -- (2.5,7.3); % Flecha apuntando hacia abajo
+
+    % Óvalo "Guiding Automaton" con línea punteada, fuera del rectángulo grande
+    \node[ellipse, draw, dashed, minimum width=2.5cm, minimum height=1.5cm] (guiding) at (-2.2,6.5) {\shortstack{Guiding \\ Automaton}}; % Posición fuera del rectángulo grande
+
+    % Flecha desde el óvalo "Guiding Automaton" hasta "Synchronizer"
+    \draw[->, thick] (-0.55,6.5) -- (1,6.5); % Flecha horizontal
+    
+     % Óvalo debajo del rectángulo "Learning Algorithm"
+    \node[ellipse, draw, minimum width=2.5cm, minimum height=1.5cm] (pdfa) at (7.5,4) {PDFA};
+
+    % Flecha desde el rectángulo "Learning Algorithm" al óvalo "PDFA"
+    \draw[->, thick] (7.5,5.7) -- (7.5,4.8); % Flecha apuntando hacia abajo
+
+   % Rectángulo con línea punteada debajo del óvalo "PDFA" (PDFA to DTMC)
+    \draw[dashed] (6,2.3) rectangle (9,0.7); % Mismas dimensiones que "Learning Algorithm"
+    \node at (7.5,1.5) {\shortstack{PDFA to \\ DTMC}}; % Texto en dos líneas
+
+    % Flecha desde el óvalo "PDFA" al rectángulo punteado "PDFA to DTMC"
+    \draw[->, thick] (7.5,3.2) -- (7.5,2.3); % Flecha apuntando hacia abajo (longitud = 0.9)
+
+     % Óvalo con línea punteada debajo de "PDFA to DTMC" (DTMC)
+    \node[ellipse, draw, dashed, minimum width=2.5cm, minimum height=1.5cm] (dtmc) at (7.5,-1.5) {DTMC};
+
+    % Flecha desde el rectángulo punteado "PDFA to DTMC" hacia el óvalo "DTMC"
+    \draw[->, thick] (7.5,0.7) -- (7.5,-0.7); % Flecha apuntando hacia abajo (más corta)
+
+
+\end{tikzpicture}
+\caption{Workflow of NeuralChecker, showcasing the integration of key components and contributions to the synchronization mechanism.} % Caption descriptivo
+    \label{fig:neuralchecker} % Etiqueta para referenciar la figura
+\end{figure}
+% Ensure your 'fig_neuralchecker_contribution.pdf' file is in the 'figures' directory.
+
+\subsection{Paper Outline}
+
+The remainder of this paper is organized as follows. Section 2 details the formal system models that underpin this work, including transition systems and discrete-time Markov chains, with a focus on probabilistic representations. Section 3 elaborates on the formal specification of properties to be verified, presenting Probabilistic Computation Tree Logic (PCTL), together with its syntax and semantics. Section 4 formalizes the behavior of Large Language Models (LLMs) within this framework, including a detailed discussion of tokenization strategies and the synchronization process between LLMs and guiding automata. In Section 5, we describe the application of probabilistic model checking techniques, particularly using PRISM, to verify properties over the extracted models. Section 6 presents case studies that illustrate the feasibility and correctness of the proposed methodology. In Section 7, we detail a series of experiments designed to analyze the efficiency and performance of PDFA extraction under varying conditions, including the influence of regex length, tokenization settings, and contextual information. Finally, Section 8 concludes the paper, summarizing key findings and outlining potential directions for future research.
+
+
+
+
+Building upon foundational work in formal verification of neural networks and language models, including contributions from the NeuralChecker project, this paper introduces a novel approach that integrates active learning for efficient PDFA extraction from LLMs with established model checking techniques. While prior work has explored aspects of formalizing language model behavior, our contribution lies in the systematic development of a comprehensive workflow that enables the extraction of Probably Approximately Correct (PAC) probabilistic models directly from LLMs under specific guiding constraints, followed by their transformation into verifiable DTMCs. This framework allows for the rigorous analysis of complex, stochastic LLM behaviors against precise temporal specifications, offering a robust solution for quantifying and certifying properties such as adherence to patterns, termination, and probabilistic safety or fairness.
 
 
 \section{Headings: first level}
